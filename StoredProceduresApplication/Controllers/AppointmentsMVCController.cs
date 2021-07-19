@@ -146,9 +146,15 @@ namespace StoredProceduresApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var appointments = await _context.Appointments.FindAsync(id);
-            _context.Appointments.Remove(appointments);
-            await _context.SaveChangesAsync();
+            string storedProc = "exec DeleteAppointment @Id= " + id;
+            try
+            {
+                await _context.Appointments.FromSqlRaw(storedProc).LoadAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
             return RedirectToAction(nameof(Index));
         }
 
