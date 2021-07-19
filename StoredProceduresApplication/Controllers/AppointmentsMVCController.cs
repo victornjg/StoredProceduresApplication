@@ -55,13 +55,21 @@ namespace StoredProceduresApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Date,DoctorName,PatientName,StartTime,EndTime")] Appointments appointments)
         {
-            if (ModelState.IsValid)
+            string storedProc = "exec CreateAppointment " +
+            "@Date= '" + appointments.Date + "'," +
+            "@DoctorName= '" + appointments.DoctorName + "'," +
+            "@PatientName= '" + appointments.PatientName + "'," +
+            "@StartTime= '" + appointments.StartTime + "'," +
+            "@EndTime= '" + appointments.EndTime + "'";
+            try 
             {
-                _context.Add(appointments);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                await _context.Appointments.FromSqlRaw(storedProc).LoadAsync();
             }
-            return View(appointments);
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: AppointmentsMVC/Edit/5
